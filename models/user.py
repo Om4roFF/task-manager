@@ -28,6 +28,6 @@ class UserIn(BaseModel):
 
     @validator('password2')
     def password_match(self, v, values, **kwargs):
-        if 'password' in values and v!=values['password']:
+        if 'password' in values and v != values['password']:
             raise ValueError("passwords don't match")
         return v

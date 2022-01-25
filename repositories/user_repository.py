@@ -23,7 +23,7 @@ class UserRepository(BaseRepository):
     async def create(self, u: UserIn) -> User:
         now = datetime.utcnow()
         user = User(email=u.email, phone=u.phone, image_url=u.image_url, created_at=now, updated_at=now,
-                    last_visit_time=now)
+                    last_visit_time=now, is_verified_email=False)
 
     async def update(self, u: UserIn) -> User:
         pass
