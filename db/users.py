@@ -8,7 +8,6 @@ users = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True, autoincrement=True, unique=True),
     sqlalchemy.Column("email", sqlalchemy.String, primary_key=True, unique=True),
     sqlalchemy.Column("is_verified_email", sqlalchemy.Boolean),
-    sqlalchemy.Column("hashed_password", sqlalchemy.String),
     sqlalchemy.Column("role", sqlalchemy.String),
     sqlalchemy.Column("position", sqlalchemy.String),
     sqlalchemy.Column("total_money_in_kzt", sqlalchemy.Integer),
