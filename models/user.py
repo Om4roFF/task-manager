@@ -7,6 +7,7 @@ class User(BaseModel):
     id: Optional[int] = None
     email: EmailStr
     is_verified_email: bool
+    is_verified_phone: bool
     phone: str
     role: str
     position: Optional[str]
@@ -18,7 +19,6 @@ class User(BaseModel):
 
 
 class UserIn(BaseModel):
-    email: EmailStr
     phone: str
     image_url: Optional[str]
     code: int
