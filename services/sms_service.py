@@ -5,12 +5,15 @@ from core.config import SMS_PASSWORD, SMS_LOGIN
 
 
 async def send_sms(phone: str, message: str):
-    response = requests.post(f'https://smsc.kz/sys/send.php?'
-                             f'login={SMS_LOGIN}&'
-                             f'psw={SMS_PASSWORD}&'
-                             f'phones={phone}&'
-                             f'mes={message}')
-    print(response.text)
+    try:
+        response = requests.post(f'https://smsc.kz/sys/send.php?'
+                                 f'login={SMS_LOGIN}&'
+                                 f'psw={SMS_PASSWORD}&'
+                                 f'phones={phone}&'
+                                 f'mes={message}')
+        print(response.text)
+    except Exception as e:
+        print(e)
 
 
 async def generate_code():
