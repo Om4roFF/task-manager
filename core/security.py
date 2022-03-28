@@ -19,7 +19,7 @@ async def create_access_token(data: dict) -> str:
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str):
+async def decode_access_token(token: str):
     try:
         encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.JWSError:

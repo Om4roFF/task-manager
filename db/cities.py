@@ -1,7 +1,7 @@
 import sqlalchemy
 from .base import metadata
 
-users = sqlalchemy.Table(
+cities = sqlalchemy.Table(
     "cities",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True, autoincrement=True, unique=True),

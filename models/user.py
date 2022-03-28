@@ -9,6 +9,7 @@ class User(BaseModel):
     role: Optional[str]
     position: Optional[str]
     image_url: Optional[str]
+    city: Optional[str]
     total_money_in_kzt: Optional[int]
     last_visit_time: datetime
     updated_at: datetime
@@ -28,6 +29,10 @@ class UserAuth(BaseModel):
 class UserVerify(BaseModel):
     phone: str
     code: int
+
+
+class UserRefreshToken(BaseModel):
+    token: str
 
 
 class UserIn(BaseModel):

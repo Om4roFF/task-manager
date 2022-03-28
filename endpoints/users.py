@@ -1,10 +1,13 @@
+from datetime import timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
-from core.security import create_access_token, get_current_user
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES
+from core.security import create_access_token, get_current_user, oauth2_scheme, decode_access_token
 from models.token import Token
-from models.user import User, UserAuth, UserResponse, UserVerify
+from models.user import User, UserAuth, UserResponse, UserVerify, UserRefreshToken
 from repositories.auth_repository import AuthRepository
 from repositories.user_repository import UserRepository
 from services.sms_service import send_sms, generate_code
@@ -47,16 +50,30 @@ async def verification(user: UserAuth, auth: AuthRepository):
 
 
 @router.post('/auth/verify', response_model=Token)
-async def verify(user: UserVerify, users: UserRepository = Depends(get_user_repository),
+async def verify(user: UserVerify,
                  auth: AuthRepository = Depends(get_auth_repository)):
     is_verified = await auth.is_verified(user)
-    # await auth.remove_old_sessions(user)
     if is_verified:
         access_token = await create_access_token({'sub': user.phone})
         print(access_token)
         return Token(access_token=access_token, token_type='Bearer')
 
     raise HTTPException(status_code=400, detail='Incorrect SMS or phone')
+
+
+@router.post("/token", response_model=Token)
+async def login_for_access_token(token: str = Depends(oauth2_scheme)):
+    user = await decode_access_token(token)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    access_token = await create_access_token(
+        data={"sub": user.get('sub')}
+    )
+    return Token(access_token=access_token, token_type='Bearer')
 
 
 def validate_phone(phone: str) -> bool:

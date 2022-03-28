@@ -11,6 +11,8 @@ users = sqlalchemy.Table(
     sqlalchemy.Column("position", sqlalchemy.String),
     sqlalchemy.Column("total_money_in_kzt", sqlalchemy.Integer),
     sqlalchemy.Column("image_url", sqlalchemy.String),
+    sqlalchemy.Column("city_id", sqlalchemy.ForeignKey('cities.id')),
+    sqlalchemy.Column("group_id", sqlalchemy.ForeignKey('groups.id')),
     sqlalchemy.Column("created_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow),
     sqlalchemy.Column("last_visit_time", sqlalchemy.DateTime, default=datetime.datetime.utcnow),
     sqlalchemy.Column("updated_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow)
