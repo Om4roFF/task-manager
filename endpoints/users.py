@@ -29,7 +29,6 @@ async def get_user(users: User = Depends(get_current_user), ):
 
 @router.post('/test/')
 async def test():
-    print('hello')
     raise HTTPException(status_code=404, detail="Item not found")
 
 
@@ -61,9 +60,7 @@ async def verify(user: UserVerify,
     is_verified = await auth.is_verified(user)
     if is_verified:
         access_token = await create_access_token({'sub': user.phone})
-        print(access_token)
         return Token(access_token=access_token, token_type='Bearer')
-
     raise HTTPException(status_code=400, detail='Incorrect SMS or phone')
 
 
@@ -118,7 +115,6 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
 
 async def _save_file(file: UploadFile, phone):
     dir_ = DATA_DIR + phone
-    print(dir_)
     if not os.path.exists(dir_):
         os.makedirs(dir_)
 
@@ -130,7 +126,11 @@ async def _save_file(file: UploadFile, phone):
 
 
 def validate_phone(phone: str) -> bool:
-    return True
+    if len(phone) == 11 and phone.isdigit():
+        value = phone[:2]
+        if value == "77":
+            return True
+    return False
 
 
 async def validate_audio(phone: str, voice: UploadFile, from_login: bool = False):

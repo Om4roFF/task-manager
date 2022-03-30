@@ -8,5 +8,5 @@ class Board(BaseModel):
     id: Optional[int] = None
     group_id: int
     description: int
-    created_id: datetime.datetime
-    updated_id: datetime.datetime
+    created_at: Optional[datetime.datetime]
+    updated_at: Optional[datetime.datetime]

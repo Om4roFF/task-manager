@@ -23,7 +23,7 @@ class UserRepository(BaseRepository):
     async def create(self, u: UserAuth) -> User:
         now = datetime.utcnow()
         user = User(phone=u.phone, created_at=now, updated_at=now,
-                    last_visit_time=now, is_verified_phone=False)
+                    last_visit_time=now)
         values = {**user.dict()}
         values.pop("id", None)
         query = users.insert().values(**values)
@@ -47,8 +47,8 @@ class UserRepository(BaseRepository):
     async def verify_user(self, u: UserVerify, is_verified: bool = False) -> User:
         now = datetime.utcnow()
         user = User(phone=u.phone, updated_at=now,
-                    last_visit_time=now, is_verified_phone=is_verified, id=u.id)
-        query = users.update().where(users.c.id == u.id)
+                    last_visit_time=now)
+        query = users.update().where(users.c.phone == u.phone)
         values = {**user.dict()}
         values.pop("created_at", None)
         values.pop("id", None)

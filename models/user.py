@@ -10,7 +10,7 @@ class User(BaseModel):
     role: Optional[str]
     position: Optional[str]
     image_url: Optional[str]
-    city: Optional[str]
+    city_id: Optional[int]
     total_money_in_kzt: Optional[int]
     last_visit_time: datetime
     updated_at: datetime
