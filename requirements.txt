@@ -8,3 +8,7 @@ requests~=2.27.1
 asyncpg
 psycopg2
 jose~=1.0.0
+torch~=1.11.0
+librosa~=0.9.1
+numpy~=1.21.5
+python_speech_features

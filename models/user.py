@@ -1,3 +1,4 @@
+from fastapi import UploadFile
 from pydantic import BaseModel, EmailStr, validator, constr
 from typing import Optional
 from datetime import datetime
@@ -31,14 +32,4 @@ class UserVerify(BaseModel):
     code: int
 
 
-class UserRefreshToken(BaseModel):
-    token: str
 
-
-class UserIn(BaseModel):
-    id: int
-    image_url: Optional[str]
-
-
-class UserResponse(BaseModel):
-    token: str
