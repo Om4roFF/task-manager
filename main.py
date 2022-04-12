@@ -4,10 +4,11 @@ from fastapi import FastAPI
 from db.base import database
 import uvicorn
 
-from endpoints import users
+from endpoints import users, company
 
 app = FastAPI(title="Task Manager")
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(company.router, prefix="/company", tags=["company"])
 
 
 @app.on_event("startup")

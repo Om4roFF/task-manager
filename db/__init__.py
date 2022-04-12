@@ -6,4 +6,5 @@ from .cities import cities
 from .boards import boards
 from .groups import groups
 from .task import tasks
+from .company import companies
 metadata.create_all(bind=engine)

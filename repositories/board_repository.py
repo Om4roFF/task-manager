@@ -37,3 +37,7 @@ class BoardRepository(BaseRepository):
             return True
         except:
             return False
+
+    async def get_board_by_id(self, user_id: int):
+        # query = boards.select().where()
+        pass

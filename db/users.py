@@ -13,6 +13,7 @@ users = sqlalchemy.Table(
     sqlalchemy.Column("image_url", sqlalchemy.String),
     sqlalchemy.Column("city_id", sqlalchemy.ForeignKey('cities.id')),
     sqlalchemy.Column("group_id", sqlalchemy.ForeignKey('groups.id')),
+    sqlalchemy.Column("company_id", sqlalchemy.ForeignKey('companies.id')),
     sqlalchemy.Column("created_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow),
     sqlalchemy.Column("last_visit_time", sqlalchemy.DateTime, default=datetime.datetime.utcnow),
     sqlalchemy.Column("updated_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow)

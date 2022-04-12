@@ -1,26 +1,23 @@
 import os
-from datetime import timedelta
-from typing import List, Optional
 
 import aiofiles as aiofiles
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
-from fastapi.security import OAuth2PasswordRequestForm
 
-from core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from core.security import create_access_token, get_current_user, oauth2_scheme, decode_access_token
+from depends import get_user_repository, get_auth_repository
 from models.token import Token
 from models.user import User, UserAuth, UserVerify
 from repositories.auth_repository import AuthRepository
 from repositories.user_repository import UserRepository
-from services.sms_service import send_sms, generate_code
+from services.sms_service import generate_code
 from voice_auth.predictions import get_embeddings, get_cosine_distance
 from voice_auth.preprocessing import extract_fbanks
-from .depends import get_user_repository, get_auth_repository
 
 router = APIRouter()
 DATA_DIR = 'data_files/'
 THRESHOLD = 0.45
+
 
 @router.get('/', response_model=User)
 async def get_user(users: User = Depends(get_current_user), ):
@@ -93,7 +90,6 @@ async def register_voice(phone: str, voice: UploadFile):
 
 @router.post("/voice/login")
 async def login_voice(phone: str, voice: UploadFile = File(...)):
-
     await validate_audio(phone, voice, from_login=True)
 
     filename = await _save_file(voice, phone)
