@@ -1,10 +1,10 @@
 import datetime
+from datetime import datetime
+from typing import Optional, List
 
 from db import users
 from models.user import UserAuth, User, UserVerify
 from repositories.base import BaseRepository
-from typing import List, Optional
-from datetime import datetime
 
 
 class UserRepository(BaseRepository):
@@ -13,6 +13,17 @@ class UserRepository(BaseRepository):
         query = users.select().limit(limit)
         return await self.database.fetch_all(query)
 
+    async def get_all_by_company(self, company_id: int) -> List[User]:
+        query = users.select().where(users.c.company_id == company_id)
+        all_users = await self.database.fetch_all(query)
+        if all_users is None:
+            return []
+        usrs = []
+        for user in all_users:
+            parsed_user = User.parse_obj(user)
+            usrs.append(parsed_user)
+        return usrs
+
     async def get_by_id(self, user_id: int) -> Optional[User]:
         query = users.select().where(users.c.id == user_id)
         user = await self.database.fetch_one(query)
@@ -20,10 +31,10 @@ class UserRepository(BaseRepository):
             return None
         return User.parse_obj(user)
 
-    async def create(self, u: UserAuth) -> User:
+    async def create(self, u: UserAuth, company_id: int) -> User:
         now = datetime.utcnow()
         user = User(phone=u.phone, created_at=now, updated_at=now,
-                    last_visit_time=now)
+                    last_visit_time=now, company_id=company_id)
         values = {**user.dict()}
         values.pop("id", None)
         query = users.insert().values(**values)
@@ -33,7 +44,7 @@ class UserRepository(BaseRepository):
     async def update(self, u: UserAuth) -> User:
         now = datetime.utcnow()
         user = User(phone=u.phone, updated_at=now,
-                    last_visit_time=now)
+                    last_visit_time=now, )
         query = users.update().where(users.c.phone == u.phone)
         values = {**user.dict()}
         values.pop("created_at", None)

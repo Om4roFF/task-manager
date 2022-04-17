@@ -1,14 +1,16 @@
 import os
+from typing import List
 
 import aiofiles as aiofiles
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 
 from core.security import create_access_token, get_current_user, oauth2_scheme, decode_access_token
-from depends import get_user_repository, get_auth_repository
+from .depends import get_user_repository, get_auth_repository, get_company_repository
 from models.token import Token
-from models.user import User, UserAuth, UserVerify
+from models.user import User, UserAuth, UserVerify, UserOut
 from repositories.auth_repository import AuthRepository
+from repositories.company_repository import CompanyRepository
 from repositories.user_repository import UserRepository
 from services.sms_service import generate_code
 from voice_auth.predictions import get_embeddings, get_cosine_distance
@@ -24,6 +26,16 @@ async def get_user(users: User = Depends(get_current_user), ):
     return users
 
 
+@router.get('/all', response_model=List[UserOut])
+async def get_all_users_company(user: User = Depends(get_current_user),
+                                users: UserRepository = Depends(get_user_repository), ):
+    all_users = await users.get_all_by_company(user.company_id)
+    users_out = []
+    for usr in all_users:
+        users_out.append(UserOut(id=usr.id, phone=usr.phone, image_url=usr.image_url))
+    return users_out
+
+
 @router.post('/test/')
 async def test():
     raise HTTPException(status_code=404, detail="Item not found")
@@ -31,15 +43,19 @@ async def test():
 
 @router.post('/auth', response_model=UserAuth)
 async def login_user(user: UserAuth, users: UserRepository = Depends(get_user_repository),
-                     auth: AuthRepository = Depends(get_auth_repository)):
+                     auth: AuthRepository = Depends(get_auth_repository),
+                     company: CompanyRepository = Depends(get_company_repository)):
+    is_exist_company = await company.get_company_by_code(user.company_code)
+    if is_exist_company is None:
+        raise HTTPException(status_code=400, detail='Company doesn\'t exist')
     if user.phone is not None and validate_phone(user.phone):
         is_user = await users.is_user_exist_by_phone(user.phone)
         if is_user:
             await verification(user, auth)
         else:
-            await users.create(user)
+            await users.create(user, is_exist_company.id)
             await verification(user, auth)
-        return UserAuth(phone=user.phone)
+        return UserAuth(phone=user.phone, company_code=user.company_code)
     else:
         raise HTTPException(status_code=401, detail='Invalid phone number')
 

@@ -11,14 +11,23 @@ class User(BaseModel):
     position: Optional[str]
     image_url: Optional[str]
     city_id: Optional[int]
+    company_id: Optional[int]
     total_money_in_kzt: Optional[int]
     last_visit_time: datetime
     updated_at: datetime
     created_at: Optional[datetime]
 
 
+class UserOut(BaseModel):
+    id: int
+    phone: str
+    image_url: Optional[str]
+
+
+
 class UserAuth(BaseModel):
     phone: str
+    company_code: str
 
     @validator('phone')
     def name_must_contain_space(cls, v, values, **kwargs):

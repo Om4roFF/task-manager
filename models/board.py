@@ -1,5 +1,5 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -7,6 +7,16 @@ from pydantic import BaseModel
 class Board(BaseModel):
     id: Optional[int] = None
     group_id: int
-    description: int
+    description: str
     created_at: Optional[datetime.datetime]
     updated_at: Optional[datetime.datetime]
+
+
+class BoardIn(BaseModel):
+    group_name: Optional[str]
+    description: str
+
+
+class BoardAdd(BaseModel):
+    id: int
+    user_ids: List[int]

@@ -38,6 +38,16 @@ class BoardRepository(BaseRepository):
         except:
             return False
 
-    async def get_board_by_id(self, user_id: int):
-        # query = boards.select().where()
-        pass
+    async def get_board_by_group_id(self, group_id: int) -> Optional[Board]:
+        query = boards.select().where(boards.c.group_id == group_id)
+        item = await self.database.fetch_one(query)
+        if item is None:
+            return None
+        return Board.parse_obj(item)
+
+    async def get_board_by__id(self, id: int) -> Optional[Board]:
+        query = boards.select().where(boards.c.id == id)
+        item = await self.database.fetch_one(query)
+        if item is None:
+            return None
+        return Board.parse_obj(item)

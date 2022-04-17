@@ -7,4 +7,5 @@ from .boards import boards
 from .groups import groups
 from .task import tasks
 from .company import companies
+from .user_group import user_group_table
 metadata.create_all(bind=engine)
