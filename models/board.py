@@ -18,5 +18,9 @@ class BoardIn(BaseModel):
 
 
 class BoardAdd(BaseModel):
-    id: int
+    board_id: int
     user_ids: List[int]
+
+
+class BoardDel(BaseModel):
+    board_id: int

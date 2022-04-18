@@ -5,6 +5,7 @@ from repositories.company_repository import CompanyRepository
 from repositories.group_repository import GroupRepository
 from repositories.user_group_repository import UserGroupRepository
 from repositories.user_repository import UserRepository
+from repositories.task_repository import TaskRepository
 
 
 def get_user_repository() -> UserRepository:
@@ -29,3 +30,7 @@ def get_group_repository() -> GroupRepository:
 
 def get_user_group_repository() -> UserGroupRepository:
     return UserGroupRepository(database)
+
+
+def get_task_repository() -> TaskRepository:
+    return TaskRepository(database)

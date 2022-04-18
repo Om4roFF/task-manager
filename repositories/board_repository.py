@@ -51,3 +51,11 @@ class BoardRepository(BaseRepository):
         if item is None:
             return None
         return Board.parse_obj(item)
+
+    async def delete_board(self, board_id):
+        try:
+            query = boards.delete().where(boards.c.id == board_id)
+            await self.database.execute(query)
+            return True
+        except:
+            return False

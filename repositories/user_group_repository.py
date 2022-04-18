@@ -1,3 +1,5 @@
+from sqlalchemy import and_
+
 from db import user_group_table
 from models.user_group import UserGroup
 from repositories.base import BaseRepository
@@ -31,3 +33,14 @@ class UserGroupRepository(BaseRepository):
             usrgr.append(UserGroup.parse_obj(ug))
         return usrgr
 
+    async def get_by_user_group(self, user_id: int, group_id: int):
+        query = user_group_table.select().where(
+            and_(user_group_table.c.user_id == user_id, user_group_table.c.group_id == group_id))
+        user_groups = await self.database.fetch_all(query)
+        print(user_groups)
+        if user_groups is None:
+            return None
+        usrgr = []
+        for ug in user_groups:
+            usrgr.append(UserGroup.parse_obj(ug))
+        return usrgr
