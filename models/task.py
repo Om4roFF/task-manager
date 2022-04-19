@@ -3,8 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from models.board import Board
-from models.user import User
+from models.user import UserOut
 
 
 class Task(BaseModel):
@@ -31,14 +30,23 @@ class TaskIn(BaseModel):
     status: str = 'TODO'
 
 
+class TaskUpdate(BaseModel):
+    id: int
+    title: Optional[str]
+    description: Optional[str]
+    deadline: Optional[datetime]
+    performer_id: Optional[int]
+    status: Optional[str]
+
+
 class TaskOut(BaseModel):
-    id: Optional[int]
+    id: int
     title: str
     description: str
     status: str
-    deadline: datetime
-    board: Board
-    performer: User
-    creator: User
+    deadline: Optional[datetime]
+    board_id: int
+    performer: Optional[UserOut]
+    creator: UserOut
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
