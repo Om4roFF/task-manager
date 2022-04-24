@@ -3,9 +3,10 @@ from repositories.auth_repository import AuthRepository
 from repositories.board_repository import BoardRepository
 from repositories.company_repository import CompanyRepository
 from repositories.group_repository import GroupRepository
+from repositories.session_repository import SessionRepository
+from repositories.task_repository import TaskRepository
 from repositories.user_group_repository import UserGroupRepository
 from repositories.user_repository import UserRepository
-from repositories.task_repository import TaskRepository
 
 
 def get_user_repository() -> UserRepository:
@@ -34,3 +35,7 @@ def get_user_group_repository() -> UserGroupRepository:
 
 def get_task_repository() -> TaskRepository:
     return TaskRepository(database)
+
+
+def get_session_repository() -> SessionRepository:
+    return SessionRepository(database)

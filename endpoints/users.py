@@ -3,10 +3,9 @@ from typing import List
 
 import aiofiles as aiofiles
 import numpy as np
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 
-from core.security import create_access_token, get_current_user, oauth2_scheme, decode_access_token
-from .depends import get_user_repository, get_auth_repository, get_company_repository
+from core.security import create_access_token, get_current_user
 from models.token import Token
 from models.user import User, UserAuth, UserVerify, UserOut
 from repositories.auth_repository import AuthRepository
@@ -15,6 +14,7 @@ from repositories.user_repository import UserRepository
 from services.sms_service import generate_code
 from voice_auth.predictions import get_embeddings, get_cosine_distance
 from voice_auth.preprocessing import extract_fbanks
+from .depends import get_user_repository, get_auth_repository, get_company_repository
 
 router = APIRouter()
 DATA_DIR = 'data_files/'
@@ -36,6 +36,13 @@ async def get_all_users_company(user: User = Depends(get_current_user),
     return users_out
 
 
+@router.put('/')
+async def update_user(user: User, user_token: User = Depends(get_current_user),
+                      users: UserRepository = Depends(get_user_repository)):
+    updated_user = await users.update(u=user)
+    return updated_user
+
+
 @router.post('/test/')
 async def test():
     raise HTTPException(status_code=404, detail="Item not found")
@@ -49,13 +56,8 @@ async def login_user(user: UserAuth, users: UserRepository = Depends(get_user_re
     if is_exist_company is None:
         raise HTTPException(status_code=400, detail='Company doesn\'t exist')
     if user.phone is not None and validate_phone(user.phone):
-        is_user = await users.is_user_exist_by_phone(user.phone)
-        if is_user:
-            await verification(user, auth)
-        else:
-            await users.create(user, is_exist_company.id)
-            await verification(user, auth)
-        return UserAuth(phone=user.phone, company_code=user.company_code)
+        code = await verification(user, auth)
+        return UserAuth(phone=user.phone, company_code=user.company_code, sms_code=code)
     else:
         raise HTTPException(status_code=401, detail='Invalid phone number')
 
@@ -65,31 +67,29 @@ async def verification(user: UserAuth, auth: AuthRepository):
     print(gen_code)
     await auth.create_session(phone=user.phone, code=gen_code)
     # await send_sms(phone=user.phone, message=f'Ваш код подтверждения: {gen_code}')
+    return gen_code
 
 
 @router.post('/auth/verify', response_model=Token)
 async def verify(user: UserVerify,
-                 auth: AuthRepository = Depends(get_auth_repository)):
+                 auth: AuthRepository = Depends(get_auth_repository),
+                 users: UserRepository = Depends(get_user_repository),
+                 company: CompanyRepository = Depends(get_company_repository)):
+    is_exist_company = await company.get_company_by_code(user.company_code)
+    if is_exist_company is None:
+        raise HTTPException(status_code=400, detail='Company doesn\'t exist')
+    is_user_exist = await users.get_by_phone(phone=user.phone)
+    if is_user_exist is None:
+        await users.create(UserAuth(phone=user.phone, company_code=user.company_code, ),
+                           company_id=is_exist_company.id)
     is_verified = await auth.is_verified(user)
     if is_verified:
         access_token = await create_access_token({'sub': user.phone})
-        return Token(access_token=access_token, token_type='Bearer')
+        flag = False
+        if is_user_exist is not None:
+            flag = True
+        return Token(access_token=access_token, token_type='Bearer', is_exist=flag)
     raise HTTPException(status_code=400, detail='Incorrect SMS or phone')
-
-
-@router.post("/token", response_model=Token)
-async def login_for_access_token(token: str = Depends(oauth2_scheme)):
-    user = await decode_access_token(token)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token = await create_access_token(
-        data={"sub": user.get('sub')}
-    )
-    return Token(access_token=access_token, token_type='Bearer')
 
 
 @router.post("/voice/register")

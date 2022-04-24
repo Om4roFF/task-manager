@@ -8,4 +8,5 @@ from .groups import groups
 from .task import tasks
 from .company import companies
 from .user_group import user_group_table
+from .sessions import sessions
 metadata.create_all(bind=engine)

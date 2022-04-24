@@ -41,19 +41,16 @@ class UserRepository(BaseRepository):
         user.id = await self.database.execute(query)
         return user
 
-    async def update(self, u: UserAuth) -> User:
+    async def update(self, u: User) -> User:
         now = datetime.utcnow()
-        user = User(phone=u.phone, updated_at=now,
-                    last_visit_time=now, )
+
         query = users.update().where(users.c.phone == u.phone)
-        values = {**user.dict()}
+        values = {**u.dict()}
         values.pop("created_at", None)
         values.pop("id", None)
-
         values = {'updated_at': datetime.datetime.now()}
-
         await self.database.execute(query, values=values)
-        return user
+        return u
 
     async def verify_user(self, u: UserVerify, is_verified: bool = False) -> User:
         now = datetime.utcnow()

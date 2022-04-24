@@ -1,7 +1,7 @@
-from fastapi import UploadFile
-from pydantic import BaseModel, EmailStr, validator, constr
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, validator
 
 
 class User(BaseModel):
@@ -9,6 +9,7 @@ class User(BaseModel):
     phone: str
     role: Optional[str]
     position: Optional[str]
+    name: Optional[str]
     image_url: Optional[str]
     city_id: Optional[int]
     company_id: Optional[int]
@@ -28,6 +29,7 @@ class UserOut(BaseModel):
 class UserAuth(BaseModel):
     phone: str
     company_code: str
+    sms_code: Optional[str]
 
     @validator('phone')
     def name_must_contain_space(cls, v, values, **kwargs):
@@ -39,6 +41,4 @@ class UserAuth(BaseModel):
 class UserVerify(BaseModel):
     phone: str
     code: int
-
-
-
+    company_code: str
