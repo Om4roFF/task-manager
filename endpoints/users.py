@@ -1,9 +1,11 @@
+import io
 import os
 from typing import List
 
 import aiofiles as aiofiles
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from pydub import AudioSegment
 
 from core.security import create_access_token, get_current_user
 from models.token import Token
@@ -96,24 +98,25 @@ async def verify(user: UserVerify,
 async def register_voice(phone: str, voice: UploadFile):
     await validate_audio(phone, voice)
     filename = await _save_file(voice, phone)
+    await register_fbank(filename, phone)
+    return True
+
+
+async def register_fbank(filename: str, phone: str):
     fbanks = extract_fbanks(filename)
     embeddings = get_embeddings(fbanks)
-    print('shape of embeddings: {}'.format(embeddings.shape), flush=True)
     mean_embeddings = np.mean(embeddings, axis=0)
     np.save(DATA_DIR + phone + '/embeddings.npy', mean_embeddings)
-    return True
 
 
 @router.post("/voice/login")
 async def login_voice(phone: str, voice: UploadFile = File(...)):
     await validate_audio(phone, voice, from_login=True)
-
     filename = await _save_file(voice, phone)
     fbanks = extract_fbanks(filename)
     embeddings = get_embeddings(fbanks)
     stored_embeddings = np.load(DATA_DIR + phone + '/embeddings.npy')
     stored_embeddings = stored_embeddings.reshape((1, -1))
-
     distances = get_cosine_distance(embeddings, stored_embeddings)
     print('mean distances', np.mean(distances), flush=True)
     positives = distances < THRESHOLD
@@ -130,10 +133,15 @@ async def _save_file(file: UploadFile, phone):
     if not os.path.exists(dir_):
         os.makedirs(dir_)
 
+    temp_file = dir_ + f'/temp.{file.content_type[6:]}'
+    async with aiofiles.open(temp_file, 'wb') as out_file:
+        content = await file.read()
+        await out_file.write(content)
+
     filename = DATA_DIR + phone + f'/sample.wav'
-    async with aiofiles.open(filename, 'wb') as out_file:
-        content = await file.read()  # async read
-        await out_file.write(content)  # async write
+    song = AudioSegment.from_file(temp_file)
+    song.export(filename, format='wav')
+
     return filename
 
 
@@ -146,7 +154,7 @@ def validate_phone(phone: str) -> bool:
 
 
 async def validate_audio(phone: str, voice: UploadFile, from_login: bool = False):
-    if voice.content_type != 'audio/wav':
+    if voice.content_type != 'audio/mp4':
         raise HTTPException(status_code=400, detail='incorrect content type')
     if from_login:
         if not os.path.exists(DATA_DIR + phone) or not os.path.exists(DATA_DIR + phone + '/embeddings.npy') \

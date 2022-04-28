@@ -29,7 +29,7 @@ class SessionRepository(BaseRepository):
         return sessions_list
 
     async def get_last_session(self, user_id) -> Optional[Session]:
-        query = sessions.select().where(sessions.c.user_id == user_id).order_by(sessions.c.id)
+        query = sessions.select().where(sessions.c.user_id == user_id).order_by(sessions.c.id.desc())
         item = await self.database.fetch_one(query)
         if item is None:
             return None
