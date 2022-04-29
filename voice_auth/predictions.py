@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 
+from core.config import MODEL_PATH
 from voice_auth.cross_entropy_model import FBankCrossEntropyNet
 
 
@@ -10,7 +11,6 @@ def get_cosine_distance(a, b):
     return (1 - F.cosine_similarity(a, b)).numpy()
 
 
-MODEL_PATH = 'voice_auth/triplet_loss_trained_model.pth'
 model_instance = FBankCrossEntropyNet()
 model_instance.load_state_dict(torch.load(MODEL_PATH, map_location=lambda storage, loc: storage))
 model_instance = model_instance.double()

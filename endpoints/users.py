@@ -7,6 +7,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydub import AudioSegment
 
+from core.config import DATA_DIR
 from core.security import create_access_token, get_current_user
 from models.token import Token
 from models.user import User, UserAuth, UserVerify, UserOut
@@ -19,7 +20,7 @@ from voice_auth.preprocessing import extract_fbanks
 from .depends import get_user_repository, get_auth_repository, get_company_repository
 
 router = APIRouter()
-DATA_DIR = 'data_files/'
+
 THRESHOLD = 0.45
 
 
