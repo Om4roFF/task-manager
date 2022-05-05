@@ -8,9 +8,9 @@ from repositories.base import BaseRepository
 
 class SessionRepository(BaseRepository):
 
-    async def create(self, user_id: int):
+    async def create(self, user_id: int, latitude: float = None, longitude: float = None):
         now = datetime.utcnow()
-        item = Session(user_id=user_id, started_at=now)
+        item = Session(user_id=user_id, started_at=now, longitude=longitude, latitude=latitude)
         values = {**item.dict()}
         values.pop("id", None)
         query = sessions.insert().values(**values)

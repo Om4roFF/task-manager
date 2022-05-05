@@ -12,7 +12,7 @@ from repositories.user_repository import UserRepository
 router = APIRouter()
 
 
-@router.post('/')
+@router.post('/', response_model=Optional[Task])
 async def create_task(task_in: TaskIn, user: User = Depends(get_current_user),
                       task_repository: TaskRepository = Depends(get_task_repository)):
     try:

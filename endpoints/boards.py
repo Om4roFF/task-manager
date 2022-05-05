@@ -16,12 +16,15 @@ router = APIRouter()
 @router.get('/')
 async def get_my_boards(user: User = Depends(get_current_user),
                         board_repository: BoardRepository = Depends(get_board_repository),
-                        user_group_repo: UserGroupRepository = Depends(get_user_group_repository)):
+                        user_group_repo: UserGroupRepository = Depends(get_user_group_repository),
+                        task_repo: TaskRepository = Depends(get_task_repository)):
     user_groups = await user_group_repo.get_by_user_id(user_id=user.id)
     my_boards = []
     for ug in user_groups:
         board = await board_repository.get_board_by_group_id(group_id=ug.group_id)
         if board is not None:
+            board_tasks = await task_repo.get_task_by_board(board_id=board.id)
+            board.tasks = board_tasks
             my_boards.append(board)
     return my_boards
 

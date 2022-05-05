@@ -23,6 +23,7 @@ class UserOut(BaseModel):
     id: int
     phone: str
     image_url: Optional[str]
+    name: Optional[str]
 
 
 

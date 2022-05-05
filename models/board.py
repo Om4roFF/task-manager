@@ -3,11 +3,14 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
+from models.task import Task
+
 
 class Board(BaseModel):
     id: Optional[int] = None
     group_id: int
     description: str
+    tasks: List[Task] = []
     created_at: Optional[datetime.datetime]
     updated_at: Optional[datetime.datetime]
 
