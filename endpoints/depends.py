@@ -1,4 +1,5 @@
 from db.base import database
+from repositories.admin_repository import AdminRepository
 from repositories.auth_repository import AuthRepository
 from repositories.board_repository import BoardRepository
 from repositories.company_repository import CompanyRepository
@@ -39,3 +40,7 @@ def get_task_repository() -> TaskRepository:
 
 def get_session_repository() -> SessionRepository:
     return SessionRepository(database)
+
+
+def get_admin_repository() -> AdminRepository:
+    return AdminRepository(database)

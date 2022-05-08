@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydub import AudioSegment
 
 from core.config import DATA_DIR
-from core.security import create_access_token, get_current_user
+from core.security import create_access_token, get_current_user, get_admin
 from models.token import Token
 from models.user import User, UserAuth, UserVerify, UserOut
 from repositories.auth_repository import AuthRepository
