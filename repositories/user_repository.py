@@ -48,7 +48,7 @@ class UserRepository(BaseRepository):
         values = {**u.dict()}
         values.pop("created_at", None)
         values.pop("id", None)
-        values = {'updated_at': datetime.datetime.now()}
+        values = {'updated_at': now}
         await self.database.execute(query, values=values)
         return u
 
