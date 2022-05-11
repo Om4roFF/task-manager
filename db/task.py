@@ -10,7 +10,7 @@ tasks = sqlalchemy.Table(
     sqlalchemy.Column("title", sqlalchemy.String),
     sqlalchemy.Column("description", sqlalchemy.String),
     sqlalchemy.Column("status", sqlalchemy.String),
-    sqlalchemy.Column("deadline", sqlalchemy.String),
+    sqlalchemy.Column("deadline", sqlalchemy.DateTime),
     sqlalchemy.Column("board_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('boards.id')),
     sqlalchemy.Column("performer_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),
     sqlalchemy.Column("creator_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),

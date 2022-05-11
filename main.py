@@ -1,10 +1,14 @@
 import uvicorn
 from fastapi import FastAPI
 
+from core.config import STATIC_FILES_PATH
 from db.base import database
 from endpoints import users, company, boards, tasks, session, admin
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="Task Manager")
+
+app.mount("/static", StaticFiles(directory=STATIC_FILES_PATH), name="static")
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(company.router, prefix="/company", tags=["company"])
 app.include_router(boards.router, prefix="/boards", tags=["boards"])
@@ -28,3 +32,4 @@ async def root():
     return 'hello'
 
 
+uvicorn.run(app)

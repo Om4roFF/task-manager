@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from core.security import get_current_user
 from endpoints.depends import *
+from endpoints.tasks import get_by_creator, get_task_out
 from models.board import Board, BoardIn, BoardAdd, BoardDel
 from models.group import Group
 from models.user import User
@@ -17,14 +18,28 @@ router = APIRouter()
 async def get_my_boards(user: User = Depends(get_current_user),
                         board_repository: BoardRepository = Depends(get_board_repository),
                         user_group_repo: UserGroupRepository = Depends(get_user_group_repository),
-                        task_repo: TaskRepository = Depends(get_task_repository)):
+                        task_repo: TaskRepository = Depends(get_task_repository),
+                        users: UserRepository = Depends(get_user_repository)):
     user_groups = await user_group_repo.get_by_user_id(user_id=user.id)
     my_boards = []
     for ug in user_groups:
         board = await board_repository.get_board_by_group_id(group_id=ug.group_id)
         if board is not None:
+            boards_usr_group = await user_group_repo.get_by_group_id(board.group_id)
+            board_users = []
+            for usr in boards_usr_group:
+                curr = await users.get_by_id(usr.user_id)
+                if curr is not None:
+                    board_users.append(curr)
+            board.users = board_users
             board_tasks = await task_repo.get_task_by_board(board_id=board.id)
-            board.tasks = board_tasks
+            output_tasks = []
+            for task in board_tasks:
+                performer = await users.get_by_id(task.performer_id)
+                creator = await users.get_by_id(task.creator_id)
+                task_out = await get_task_out(task, creator, performer)
+                output_tasks.append(task_out)
+            board.tasks = output_tasks
             my_boards.append(board)
     return my_boards
 

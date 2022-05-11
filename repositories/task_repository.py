@@ -10,7 +10,7 @@ class TaskRepository(BaseRepository):
 
     async def create(self, task: TaskIn) -> Task:
         now = datetime.utcnow()
-        item = Task(created_at=now, updated_at=now, description=task.description, status=task.status,
+        item = Task(created_at=now, updated_at=now, description=task.description, status=task.status.upper(),
                     board_id=task.board_id,
                     performer_id=task.performer_id, creator_id=task.creator_id, title=task.title,
                     deadline=task.deadline)
@@ -30,7 +30,7 @@ class TaskRepository(BaseRepository):
         if task_update.title:
             task.title = task_update.title
         if task_update.status:
-            task.status = task_update.status
+            task.status = task_update.status.upper()
         if task_update.description:
             task.description = task_update.description
         if task_update.performer_id:

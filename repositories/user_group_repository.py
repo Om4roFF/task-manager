@@ -44,3 +44,14 @@ class UserGroupRepository(BaseRepository):
         for ug in user_groups:
             usrgr.append(UserGroup.parse_obj(ug))
         return usrgr
+
+    async def get_by_group_id(self, group_id: int):
+        query = user_group_table.select().where(user_group_table.c.group_id == group_id)
+        user_groups = await self.database.fetch_all(query)
+        print(user_groups)
+        if user_groups is None:
+            return None
+        usrgr = []
+        for ug in user_groups:
+            usrgr.append(UserGroup.parse_obj(ug))
+        return usrgr

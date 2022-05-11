@@ -14,6 +14,7 @@ class BoardRepository(BaseRepository):
         values = {**item.dict()}
         values.pop("id", None)
         values.pop("tasks")
+        values.pop("users")
         query = boards.insert().values(**values)
         item.id = await self.database.execute(query)
         return item
@@ -29,6 +30,7 @@ class BoardRepository(BaseRepository):
         values.pop("created_at", None)
         values.pop("id", None)
         values.pop("tasks")
+        values.pop("users")
         await self.database.execute(query, values=values)
         return item
 
