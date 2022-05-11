@@ -46,11 +46,6 @@ async def update_user(user: User, user_token: User = Depends(get_current_user),
     return updated_user
 
 
-@router.post('/test/')
-async def test():
-    raise HTTPException(status_code=404, detail="Item not found")
-
-
 @router.post('/auth', response_model=UserAuth)
 async def login_user(user: UserAuth, users: UserRepository = Depends(get_user_repository),
                      auth: AuthRepository = Depends(get_auth_repository),
@@ -110,10 +105,19 @@ async def register_fbank(filename: str, phone: str):
     np.save(DATA_DIR + phone + '/embeddings.npy', mean_embeddings)
 
 
+@router.get('/voice/check')
+async def check_on_exist_voice(phone:str):
+    dir_ = DATA_DIR + phone
+    if not os.path.exists(dir_):
+        return False
+    return True
+
+
 @router.post("/voice/login")
 async def login_voice(phone: str, voice: UploadFile = File(...)):
     await validate_audio(phone, voice, from_login=True)
-    filename = await _save_file(voice, phone)
+    filename = await _save_file(voice, phone, from_login=True)
+
     fbanks = extract_fbanks(filename)
     embeddings = get_embeddings(fbanks)
     stored_embeddings = np.load(DATA_DIR + phone + '/embeddings.npy')
@@ -121,6 +125,7 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
     distances = get_cosine_distance(embeddings, stored_embeddings)
     print('mean distances', np.mean(distances), flush=True)
     positives = distances < THRESHOLD
+    print('positives', positives)
     positives_mean = np.mean(positives)
     print('positives mean: {}'.format(positives_mean), flush=True)
     if positives_mean >= .65:
@@ -129,19 +134,28 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail='Incorrect user')
 
 
-async def _save_file(file: UploadFile, phone):
+async def _save_file(file: UploadFile, phone, from_login: bool = False):
     dir_ = DATA_DIR + phone
     if not os.path.exists(dir_):
         os.makedirs(dir_)
 
-    temp_file = dir_ + f'/temp.{file.content_type[6:]}'
-    async with aiofiles.open(temp_file, 'wb') as out_file:
-        content = await file.read()
-        await out_file.write(content)
+    if not from_login:
+        temp_file = dir_ + f'/temp.{file.content_type[6:]}'
+        async with aiofiles.open(temp_file, 'wb') as out_file:
+            content = await file.read()
+            await out_file.write(content)
 
-    filename = DATA_DIR + phone + f'/sample.wav'
-    song = AudioSegment.from_file(temp_file)
-    song.export(filename, format='wav')
+        filename = DATA_DIR + phone + f'/sample.wav'
+        song = AudioSegment.from_file(temp_file)
+        song.export(filename, format='wav')
+    else:
+        temp_file = dir_ + f'/temp.{file.content_type[6:]}'
+        async with aiofiles.open(temp_file, 'wb') as out_file:
+            content = await file.read()
+            await out_file.write(content)
+        filename = DATA_DIR + phone + f'/sample1.wav'
+        song = AudioSegment.from_file(temp_file)
+        song.export(filename, format='wav')
 
     return filename
 

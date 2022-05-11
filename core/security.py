@@ -1,15 +1,15 @@
 import datetime
+
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
-from passlib.context import CryptContext
 from jose import jwt, JWTError
+from passlib.context import CryptContext
 
 from core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from endpoints.depends import get_user_repository
 from repositories.user_repository import UserRepository
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -33,22 +33,6 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return pwd_context.hash(password)
-
-
-class JWTBearer(HTTPBearer):
-    def __init__(self, auto_error: bool = True):
-        super(JWTBearer, self).__init__(auto_error=auto_error)
-
-    async def __call__(self, request: Request):
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
-        exp = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token")
-        if credentials:
-            token = decode_access_token(credentials.credentials)
-            if token is None:
-                raise exp
-            return credentials.credentials
-        else:
-            raise exp
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), users: UserRepository = Depends(get_user_repository)):

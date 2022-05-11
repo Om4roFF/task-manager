@@ -13,12 +13,10 @@ def get_fbanks(audio_file):
 
     trim_len = int(0.25 * sr)
     if y.shape[0] < 1 * sr:
-        # if less than 1 seconds, don't use that audio
         return None
 
     y = y[trim_len:-trim_len]
 
-    # frame width of 25 ms with a stride of 15 ms. This will have an overlap of 10s
     filter_banks, energies = psf.fbank(y, samplerate=sr, nfilt=64, winlen=0.025, winstep=0.01)
     filter_banks = normalize_frames(signal=filter_banks)
 
@@ -29,9 +27,6 @@ def get_fbanks(audio_file):
 def extract_fbanks(path):
     fbanks = get_fbanks(path)
     num_frames = fbanks.shape[0]
-
-    # sample sets of 64 frames each
-
     numpy_arrays = []
     start = 0
     while start < num_frames + 64:
