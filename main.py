@@ -31,5 +31,3 @@ async def shutdown():
 async def root():
     return 'hello'
 
-
-uvicorn.run(app)
