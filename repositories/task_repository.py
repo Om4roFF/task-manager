@@ -92,7 +92,7 @@ class TaskRepository(BaseRepository):
             fetched_tasks.append(task)
         return fetched_tasks
 
-    async def delete_board(self, task_id):
+    async def delete_task(self, task_id):
         try:
             query = tasks.delete().where(tasks.c.id == task_id)
             await self.database.execute(query)

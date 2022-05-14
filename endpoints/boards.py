@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from core.security import get_current_user
 from endpoints.depends import *
 from endpoints.tasks import get_by_creator, get_task_out
-from models.board import Board, BoardIn, BoardAdd, BoardDel
+from models.board import Board, BoardIn, BoardAdd, BoardDel, BoardOut
 from models.group import Group
 from models.user import User
 from models.user_group import UserGroup
@@ -19,13 +19,17 @@ async def get_my_boards(user: User = Depends(get_current_user),
                         board_repository: BoardRepository = Depends(get_board_repository),
                         user_group_repo: UserGroupRepository = Depends(get_user_group_repository),
                         task_repo: TaskRepository = Depends(get_task_repository),
-                        users: UserRepository = Depends(get_user_repository)):
+                        users: UserRepository = Depends(get_user_repository),
+                        group_repo: GroupRepository = Depends(get_group_repository)):
     user_groups = await user_group_repo.get_by_user_id(user_id=user.id)
     my_boards = []
     for ug in user_groups:
         board = await board_repository.get_board_by_group_id(group_id=ug.group_id)
         if board is not None:
             boards_usr_group = await user_group_repo.get_by_group_id(board.group_id)
+            group = await group_repo.get_group_by_id(board.group_id)
+            board = BoardOut(id=board.id, description=board.description, tasks=board.tasks, users=board.users,
+                             created_at=board.created_at, updated_at=board.updated_at, group=group)
             board_users = []
             for usr in boards_usr_group:
                 curr = await users.get_by_id(usr.user_id)
@@ -40,6 +44,7 @@ async def get_my_boards(user: User = Depends(get_current_user),
                 task_out = await get_task_out(task, creator, performer)
                 output_tasks.append(task_out)
             board.tasks = output_tasks
+
             my_boards.append(board)
     return my_boards
 
@@ -77,8 +82,12 @@ async def add_users_to_board(board_add: BoardAdd, user: User = Depends(get_curre
 
 @router.post('/delete')
 async def delete_board(board_del: BoardDel, user: User = Depends(get_current_user),
-                       board_repository: BoardRepository = Depends(get_board_repository), ):
+                       board_repository: BoardRepository = Depends(get_board_repository),
+                       task_repo: TaskRepository = Depends(get_task_repository)):
     try:
+        board_tasks = await task_repo.get_task_by_board(board_del.board_id)
+        for task in board_tasks:
+            await task_repo.delete_task(task.id)
         board = await board_repository.delete(board_del.board_id)
         if board:
             return 'success'

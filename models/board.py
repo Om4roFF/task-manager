@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
+from models.group import Group
 from models.task import TaskOut
 from models.user import User
 
@@ -10,6 +11,16 @@ from models.user import User
 class Board(BaseModel):
     id: Optional[int] = None
     group_id: int
+    description: str
+    tasks: List[TaskOut] = []
+    users: List[User] = []
+    created_at: Optional[datetime.datetime]
+    updated_at: Optional[datetime.datetime]
+
+
+class BoardOut(BaseModel):
+    id: Optional[int] = None
+    group: Group
     description: str
     tasks: List[TaskOut] = []
     users: List[User] = []

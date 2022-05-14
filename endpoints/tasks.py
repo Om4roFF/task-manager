@@ -27,13 +27,16 @@ async def create_task(task_in: TaskIn, user: User = Depends(get_current_user),
 async def update(task_in: TaskUpdate, user: User = Depends(get_current_user),
                  task_repository: TaskRepository = Depends(get_task_repository)):
     try:
-        if task_in.status.upper() != 'TODO' or task_in.status.upper() != 'IN_PROCESS' or\
-                task_in.status.upper() != 'DONE' or task_in.status.upper() != 'UNDETERMINED':
+        if task_in.status.upper() != 'TODO' and task_in.status.upper() != 'IN_PROCESS' and\
+                task_in.status.upper() != 'DONE' and task_in.status.upper() != 'UNDETERMINED':
             raise HTTPException(detail='Invalid status', status_code=400)
+        print('here')
         updated_task = await task_repository.update(task_in)
         if updated_task is None:
             raise HTTPException(detail='Invalid input', status_code=400)
         return updated_task
+    except HTTPException as e:
+        raise HTTPException(detail=e.detail, status_code=400)
     except Exception as e:
         raise HTTPException(detail=str(e), status_code=400)
 
