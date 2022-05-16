@@ -17,10 +17,10 @@ class AdminRepository(BaseRepository):
             return None
         return Admin.parse_obj(adm)
 
-    async def create(self, admin: AdminReg):
+    async def create(self, admin: AdminReg, company_id: int):
         from core.security import get_password_hash
         now = datetime.datetime.utcnow()
         query = admins.insert().values({'email': admin.email, 'hashed_password': get_password_hash(admin.password1),
-                                        'created_at': now, 'updated_at': now})
+                                        'created_at': now, 'updated_at': now, 'company_id': company_id})
         await self.database.execute(query)
         return True

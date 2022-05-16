@@ -12,8 +12,12 @@ class SessionRepository(BaseRepository):
         now = datetime.utcnow()
         item = Session(user_id=user_id, started_at=now, longitude=longitude, latitude=latitude)
         values = {**item.dict()}
+        if longitude is None or latitude is None:
+            values.pop("longitude")
+            values.pop("latitude")
         values.pop("id", None)
         query = sessions.insert().values(**values)
+        print(values)
         item.id = await self.database.execute(query)
         return item
 
@@ -41,5 +45,8 @@ class SessionRepository(BaseRepository):
         session.finished_at = now
         query = sessions.update().where(sessions.c.id == session.id)
         values = {**session.dict()}
+        if session.longitude is None or session.latitude is None:
+            values.pop("longitude")
+            values.pop("latitude")
         await self.database.execute(query, values=values)
         return session

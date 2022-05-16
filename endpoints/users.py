@@ -1,7 +1,7 @@
 import io
 import os
 from typing import List
-
+import shutil
 import aiofiles as aiofiles
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
@@ -132,6 +132,19 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
         return True
     else:
         raise HTTPException(status_code=400, detail='Incorrect user')
+
+
+@router.delete('/voice')
+async def delete_voice(user: User = Depends(get_current_user),):
+    dir_ = DATA_DIR + user.phone
+    if not os.path.exists(dir_):
+        return 'DONE'
+
+    try:
+        shutil.rmtree(dir_)
+        return 'DONE'
+    except OSError as e:
+        raise HTTPException(detail="Error: %s : %s" % (dir_, e.strerror), status_code=400)
 
 
 async def _save_file(file: UploadFile, phone, from_login: bool = False):

@@ -70,6 +70,6 @@ async def get_admin(token: str = Depends(oauth2_scheme), admin_repo: AdminReposi
     except JWTError:
         raise credentials_exception
     user = await admin_repo.get_admin(Admin(email=email))
-    if user is None or not user.id is None:
+    if user is None or user.id is None:
         raise credentials_exception
     return user

@@ -12,6 +12,7 @@ class CompanyRepository(BaseRepository):
         values = {**item.dict()}
         values.pop("id", None)
         query = companies.insert().values(**values)
+        print(values)
         item.id = await self.database.execute(query)
         return item
 
@@ -35,7 +36,7 @@ class CompanyRepository(BaseRepository):
             return False
 
     async def get_company_by_id(self, company_id: int):
-        query = companies.delete().where(companies.c.id == company_id)
+        query = companies.select().where(companies.c.id == company_id)
         company = await self.database.fetch_one(query)
         if company is None:
             return None

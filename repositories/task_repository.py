@@ -15,6 +15,7 @@ class TaskRepository(BaseRepository):
                     performer_id=task.performer_id, creator_id=task.creator_id, title=task.title,
                     deadline=task.deadline)
         values = {**item.dict()}
+
         values.pop("id", None)
         query = tasks.insert().values(**values)
         item.id = await self.database.execute(query)

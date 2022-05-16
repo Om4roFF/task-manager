@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from core.security import get_current_user
 from endpoints.depends import *
 from models.task import TaskIn, TaskOut, Task, TaskUpdate
-from models.task_status import TaskStatus
 from models.user import User, UserOut
 from repositories.task_repository import TaskRepository
 from repositories.user_repository import UserRepository
@@ -17,6 +16,7 @@ router = APIRouter()
 async def create_task(task_in: TaskIn, user: User = Depends(get_current_user),
                       task_repository: TaskRepository = Depends(get_task_repository)):
     try:
+        task_in.creator_id = user.id
         task = await task_repository.create(task_in)
         return task
     except Exception as e:
@@ -27,7 +27,7 @@ async def create_task(task_in: TaskIn, user: User = Depends(get_current_user),
 async def update(task_in: TaskUpdate, user: User = Depends(get_current_user),
                  task_repository: TaskRepository = Depends(get_task_repository)):
     try:
-        if task_in.status.upper() != 'TODO' and task_in.status.upper() != 'IN_PROCESS' and\
+        if task_in.status is not None and task_in.status.upper() != 'TODO' and task_in.status.upper() != 'IN_PROCESS' and\
                 task_in.status.upper() != 'DONE' and task_in.status.upper() != 'UNDETERMINED':
             raise HTTPException(detail='Invalid status', status_code=400)
         print('here')

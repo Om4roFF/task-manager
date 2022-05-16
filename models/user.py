@@ -14,6 +14,8 @@ class User(BaseModel):
     city_id: Optional[int]
     company_id: Optional[int]
     total_money_in_kzt: Optional[int]
+    money_in_hour_kzt: Optional[int]
+    birthday: Optional[datetime]
     last_visit_time: datetime
     updated_at: datetime
     created_at: Optional[datetime]
