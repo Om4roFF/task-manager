@@ -16,8 +16,8 @@ class User(BaseModel):
     total_money_in_kzt: Optional[int]
     money_in_hour_kzt: Optional[int]
     birthday: Optional[datetime]
-    last_visit_time: datetime
-    updated_at: datetime
+    last_visit_time: Optional[datetime]
+    updated_at: Optional[datetime]
     created_at: Optional[datetime]
 
 

@@ -33,10 +33,7 @@ async def get_user(users: User = Depends(get_current_user), ):
 async def get_all_users_company(user: User = Depends(get_current_user),
                                 users: UserRepository = Depends(get_user_repository), ):
     all_users = await users.get_all_by_company(user.company_id)
-    users_out = []
-    for usr in all_users:
-        users_out.append(UserOut(id=usr.id, phone=usr.phone, image_url=usr.image_url, name=usr.name))
-    return users_out
+    return all_users
 
 
 @router.put('/')

@@ -47,8 +47,11 @@ async def update_company_code(company: Company, admin: Admin = Depends(get_admin
 
 
 @router.post('/update_user')
-async def update_user_info(admin: Admin = Depends(get_admin), ):
-    pass
+async def update_user_info(user: User, admin: Admin = Depends(get_admin),
+                           users: UserRepository = Depends(get_user_repository)):
+    updated_user = await users.update(u=user)
+    print(updated_user)
+    return updated_user
 
 
 @router.get('/users', response_model=List[User])
