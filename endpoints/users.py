@@ -1,23 +1,20 @@
-import io
 import os
-from typing import List
 import shutil
+from typing import List
+
 import aiofiles as aiofiles
 import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydub import AudioSegment
 
 from core.config import DATA_DIR
-from core.security import create_access_token, get_current_user, get_admin
+from core.security import create_access_token, get_current_user
 from models.token import Token
-from models.user import User, UserAuth, UserVerify, UserOut
-from repositories.auth_repository import AuthRepository
-from repositories.company_repository import CompanyRepository
-from repositories.user_repository import UserRepository
+from models.user import User, UserAuth, UserVerify
 from services.sms_service import generate_code
 from voice_auth.predictions import get_embeddings, get_cosine_distance
 from voice_auth.preprocessing import extract_fbanks
-from .depends import get_user_repository, get_auth_repository, get_company_repository
+from .depends import *
 
 router = APIRouter()
 
@@ -29,10 +26,21 @@ async def get_user(users: User = Depends(get_current_user), ):
     return users
 
 
-@router.get('/all', response_model=List[UserOut])
+@router.get('/all', response_model=List[User])
 async def get_all_users_company(user: User = Depends(get_current_user),
-                                users: UserRepository = Depends(get_user_repository), ):
+                                users: UserRepository = Depends(get_user_repository),
+                                session_repo: SessionRepository = Depends(get_session_repository)):
     all_users = await users.get_all_by_company(user.company_id)
+    for user in all_users:
+        sessions = await session_repo.get_session_by_user_id(user_id=user.id)
+        time_in_hours = 0
+        for session in sessions:
+            dif = session.finished_at - session.started_at
+            hours = dif.seconds / 3600
+            time_in_hours += hours
+        if user.money_in_hour_kzt is not None:
+            user.total_money_in_kzt = user.money_in_hour_kzt * time_in_hours
+
     return all_users
 
 
@@ -102,7 +110,7 @@ async def register_fbank(filename: str, phone: str):
     np.save(DATA_DIR + phone + '/embeddings.npy', mean_embeddings)
 
 
-@router.get('/voice/check')
+@router.get('/voice/check/{phone}')
 async def check_on_exist_voice(phone:str):
     dir_ = DATA_DIR + phone
     if not os.path.exists(dir_):

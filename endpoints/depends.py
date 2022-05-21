@@ -2,6 +2,7 @@ from db.base import database
 from repositories.admin_repository import AdminRepository
 from repositories.auth_repository import AuthRepository
 from repositories.board_repository import BoardRepository
+from repositories.comment_repository import CommentRepository
 from repositories.company_repository import CompanyRepository
 from repositories.group_repository import GroupRepository
 from repositories.session_repository import SessionRepository
@@ -44,3 +45,7 @@ def get_session_repository() -> SessionRepository:
 
 def get_admin_repository() -> AdminRepository:
     return AdminRepository(database)
+
+
+def get_comment_repository() -> CommentRepository:
+    return CommentRepository(database)

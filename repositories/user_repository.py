@@ -14,7 +14,7 @@ class UserRepository(BaseRepository):
         return await self.database.fetch_all(query)
 
     async def get_all_by_company(self, company_id: int) -> List[User]:
-        query = users.select().where(users.c.company_id == company_id)
+        query = users.select().where(users.c.company_id == company_id).order_by(users.c.id)
         all_users = await self.database.fetch_all(query)
         if all_users is None:
             return []

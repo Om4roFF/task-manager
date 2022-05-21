@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from core.security import get_current_user
 from endpoints.depends import *
+from models.comment import CommentIn
 from models.task import TaskIn, TaskOut, Task, TaskUpdate
 from models.user import User, UserOut
 from repositories.task_repository import TaskRepository
@@ -41,10 +42,11 @@ async def update(task_in: TaskUpdate, user: User = Depends(get_current_user),
         raise HTTPException(detail=str(e), status_code=400)
 
 
-@router.delete('/')
-async def delete(task_id, user: User = Depends(get_current_user),
+@router.delete('/{task_id}')
+async def delete(task_id: int, user: User = Depends(get_current_user),
                  task_repository: TaskRepository = Depends(get_task_repository)):
-    pass
+    await task_repository.delete(task_id)
+    return True
 
 
 @router.get('/', response_model=Optional[TaskOut])
@@ -113,5 +115,21 @@ async def get_task_out(task: Task, creator: User, performer: User = None, ) -> T
     creator_out = UserOut(id=creator.id, phone=creator.phone, image_url=creator.image_url)
     task_out = TaskOut(id=task.id, title=task.title, description=task.description, status=task.status,
                        deadline=task.deadline, board_id=task.board_id,
-                       performer=performer_out, creator=creator_out, created_at=task.created_at, updated_at=task.updated_at)
+                       performer=performer_out, creator=creator_out, created_at=task.created_at,
+                       updated_at=task.updated_at)
     return task_out
+
+
+@router.post('/comment', )
+async def add_comment(comment: CommentIn, user: User = Depends(get_current_user),
+                      comment_repo: CommentRepository = Depends(get_comment_repository)):
+    await comment_repo.create(comment)
+    comments = await comment_repo.get_comments_by_task_id(comment.task_id)
+    return comments
+
+
+@router.get('/comment/{task_id}')
+async def get_comments(task_id: int, user: User = Depends(get_current_user),
+                       comment_repo: CommentRepository = Depends(get_comment_repository)):
+    comments = await comment_repo.get_comments_by_task_id(task_id)
+    return comments

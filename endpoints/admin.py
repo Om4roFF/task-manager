@@ -38,10 +38,10 @@ async def create_admin(admin_in: AdminReg, admin_repo: AdminRepository = Depends
     return await admin_repo.create(admin_in, company.id)
 
 
-@router.post('/update-code')
-async def update_company_code(company: Company, admin: Admin = Depends(get_admin),
+@router.post('/update-code/{code}')
+async def update_company_code(code: str, admin: Admin = Depends(get_admin),
                               company_repo: CompanyRepository = Depends(get_company_repository)):
-    company.id = admin.company_id
+    company = Company(code=code, id=admin.id)
     await company_repo.update(company)
     return company.code
 
@@ -50,19 +50,29 @@ async def update_company_code(company: Company, admin: Admin = Depends(get_admin
 async def update_user_info(user: User, admin: Admin = Depends(get_admin),
                            users: UserRepository = Depends(get_user_repository)):
     updated_user = await users.update(u=user)
-    print(updated_user)
     return updated_user
 
 
 @router.get('/users', response_model=List[User])
 async def get_all_users_company(admin: Admin = Depends(get_admin),
-                                users: UserRepository = Depends(get_user_repository), ):
+                                users: UserRepository = Depends(get_user_repository),
+                                session_repo: SessionRepository = Depends(get_session_repository)):
     all_users = await users.get_all_by_company(admin.company_id)
+    for user in all_users:
+        sessions = await session_repo.get_session_by_user_id(user_id=user.id)
+        time_in_hours = 0
+        for session in sessions:
+            dif = session.finished_at - session.started_at
+            hours = dif.seconds/3600
+            time_in_hours += hours
+        if user.money_in_hour_kzt is not None:
+            user.total_money_in_kzt = user.money_in_hour_kzt * time_in_hours
+
     return all_users
 
 
-@router.get('/users/session/')
-async def get_user_session(user_id, admin: Admin = Depends(get_admin),
+@router.get('/users/session/{user_id}')
+async def get_user_session(user_id: int, admin: Admin = Depends(get_admin),
                            session_repo: SessionRepository = Depends(get_session_repository)):
     sessions = await session_repo.get_session_by_user_id(user_id=int(user_id))
     return sessions
