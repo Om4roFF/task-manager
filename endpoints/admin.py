@@ -62,9 +62,10 @@ async def get_all_users_company(admin: Admin = Depends(get_admin),
         sessions = await session_repo.get_session_by_user_id(user_id=user.id)
         time_in_hours = 0
         for session in sessions:
-            dif = session.finished_at - session.started_at
-            hours = dif.seconds/3600
-            time_in_hours += hours
+            if session.finished_at is not None:
+                dif = session.finished_at - session.started_at
+                hours = dif.seconds / 3600
+                time_in_hours += hours
         if user.money_in_hour_kzt is not None:
             user.total_money_in_kzt = user.money_in_hour_kzt * time_in_hours
 

@@ -1,4 +1,5 @@
 import os
+import random
 import shutil
 from typing import List
 
@@ -7,6 +8,7 @@ import numpy as np
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydub import AudioSegment
 
+from core.audition_text import audition_text
 from core.config import DATA_DIR
 from core.security import create_access_token, get_current_user
 from models.token import Token
@@ -35,9 +37,10 @@ async def get_all_users_company(user: User = Depends(get_current_user),
         sessions = await session_repo.get_session_by_user_id(user_id=user.id)
         time_in_hours = 0
         for session in sessions:
-            dif = session.finished_at - session.started_at
-            hours = dif.seconds / 3600
-            time_in_hours += hours
+            if session.finished_at is not None:
+                dif = session.finished_at - session.started_at
+                hours = dif.seconds / 3600
+                time_in_hours += hours
         if user.money_in_hour_kzt is not None:
             user.total_money_in_kzt = user.money_in_hour_kzt * time_in_hours
 
@@ -93,6 +96,12 @@ async def verify(user: UserVerify,
             flag = True
         return Token(access_token=access_token, token_type='Bearer', is_exist=flag)
     raise HTTPException(status_code=400, detail='Incorrect SMS or phone')
+
+
+@router.get("/voice")
+async def get_text():
+    text = audition_text[random.randint(0, len(audition_text))]
+    return text
 
 
 @router.post("/voice/register")
