@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from models.user import UserOut
+from models.user import UserOut, User
 
 
 class Task(BaseModel):
@@ -46,7 +46,7 @@ class TaskOut(BaseModel):
     status: str
     deadline: Optional[datetime]
     board_id: int
-    performer: Optional[UserOut]
-    creator: UserOut
+    performer: Optional[User]
+    creator: User
     created_at: Optional[datetime]
     updated_at: Optional[datetime]

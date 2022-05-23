@@ -109,13 +109,9 @@ async def get_by_creator(user: User = Depends(get_current_user),
 
 
 async def get_task_out(task: Task, creator: User, performer: User = None, ) -> TaskOut:
-    performer_out = None
-    if performer is not None:
-        performer_out = UserOut(id=performer.id, phone=performer.phone, image_url=performer.image_url)
-    creator_out = UserOut(id=creator.id, phone=creator.phone, image_url=creator.image_url)
     task_out = TaskOut(id=task.id, title=task.title, description=task.description, status=task.status,
                        deadline=task.deadline, board_id=task.board_id,
-                       performer=performer_out, creator=creator_out, created_at=task.created_at,
+                       performer=performer, creator=creator, created_at=task.created_at,
                        updated_at=task.updated_at)
     return task_out
 
