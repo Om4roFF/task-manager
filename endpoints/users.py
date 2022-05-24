@@ -100,7 +100,7 @@ async def verify(user: UserVerify,
 
 @router.get("/voice")
 async def get_text():
-    text = audition_text[random.randint(0, len(audition_text))]
+    text = audition_text[random.randint(0, len(audition_text) - 1)]
     return text
 
 
