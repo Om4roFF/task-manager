@@ -65,10 +65,9 @@ async def get_task(task_id: int = None,
         if performer is not None:
             performer_out = UserOut(id=performer.id, phone=performer.phone, image_url=performer.image_url)
         creator = await user_repo.get_by_id(task.creator_id)
-        creator_out = UserOut(id=creator.id, phone=creator.phone, image_url=creator.image_url)
         task_out = TaskOut(id=task.id, title=task.title, description=task.description, status=task.status,
                            deadline=task.deadline, board_id=task.board_id,
-                           performer=performer_out, creator=creator_out, created_at=task.created_at,
+                           performer=performer_out, creator=creator, created_at=task.created_at,
                            updated_at=task.updated_at)
         return task_out
     except Exception as e:
@@ -119,6 +118,7 @@ async def get_task_out(task: Task, creator: User, performer: User = None, ) -> T
 @router.post('/comment', )
 async def add_comment(comment: CommentIn, user: User = Depends(get_current_user),
                       comment_repo: CommentRepository = Depends(get_comment_repository)):
+    comment.user_id = user.id
     await comment_repo.create(comment)
     comments = await comment_repo.get_comments_by_task_id(comment.task_id)
     return comments

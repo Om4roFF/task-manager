@@ -15,5 +15,5 @@ class Comment(BaseModel):
 
 class CommentIn(BaseModel):
     content: str
-    user_id: int
+    user_id: Optional[int]
     task_id: int
