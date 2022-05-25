@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from typing import List
 
 from db.comments import comments
@@ -9,7 +9,7 @@ from repositories.base import BaseRepository
 class CommentRepository(BaseRepository):
 
     async def create(self, comment: CommentIn) -> Comment:
-        now = datetime.datetime.now()
+        now = datetime.utcnow()
         values = {**comment.dict(), 'created_at': now, 'updated_at': now}
         query = comments.insert().values(**values)
         comment_id = await self.database.execute(query)
