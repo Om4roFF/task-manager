@@ -14,6 +14,7 @@ tasks = sqlalchemy.Table(
     sqlalchemy.Column("board_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('boards.id')),
     sqlalchemy.Column("performer_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),
     sqlalchemy.Column("creator_id", sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id')),
+    sqlalchemy.Column("is_archived", sqlalchemy.Boolean, default=False),
     sqlalchemy.Column("created_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow),
     sqlalchemy.Column("updated_at", sqlalchemy.DateTime, default=datetime.datetime.utcnow)
 )

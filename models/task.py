@@ -15,6 +15,7 @@ class Task(BaseModel):
     board_id: int
     performer_id: Optional[int]
     creator_id: int
+    is_archived: bool
     created_at: Optional[datetime]
     updated_at: Optional[datetime]
 

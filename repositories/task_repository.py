@@ -45,13 +45,17 @@ class TaskRepository(BaseRepository):
         await self.database.execute(query, values=values)
         return task
 
-    async def delete(self, task_id: int) -> bool:
-        try:
-            query = tasks.delete().where(tasks.c.id == task_id)
-            await self.database.execute(query)
-            return True
-        except:
+    async def delete(self, task_id: int):
+        query = tasks.select().where(tasks.c.id == task_id)
+        item = await self.database.fetch_one(query)
+        if item is None:
             return False
+        task = Task.parse_obj(item)
+        task.is_archived = True
+        query = tasks.update().where(tasks.c.id == task.id)
+        values = {**task.dict()}
+        values.pop("id", None)
+        await self.database.execute(query, values=values)
 
     async def get_task_by_id(self, task_id: int) -> Optional[Task]:
         query = tasks.select().where(tasks.c.id == task_id)

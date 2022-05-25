@@ -119,13 +119,13 @@ async def get_task_out(task: Task, creator: User, performer: User = None, ) -> T
 async def add_comment(comment: CommentIn, user: User = Depends(get_current_user),
                       comment_repo: CommentRepository = Depends(get_comment_repository)):
     comment.user_id = user.id
-    await comment_repo.create(comment)
-    comments = await comment_repo.get_comments_by_task_id(comment.task_id)
+    await comment_repo.create(comment, user)
+    comments = await comment_repo.get_comments_by_task_id(comment.task_id, user)
     return comments
 
 
 @router.get('/comment/{task_id}')
 async def get_comments(task_id: int, user: User = Depends(get_current_user),
                        comment_repo: CommentRepository = Depends(get_comment_repository)):
-    comments = await comment_repo.get_comments_by_task_id(task_id)
+    comments = await comment_repo.get_comments_by_task_id(task_id, user)
     return comments
