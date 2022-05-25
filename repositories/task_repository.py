@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Optional, List
 
+from sqlalchemy import and_
+
 from db import tasks
 from models.task import Task, TaskIn, TaskUpdate
 from repositories.base import BaseRepository
@@ -58,14 +60,16 @@ class TaskRepository(BaseRepository):
         await self.database.execute(query, values=values)
 
     async def get_task_by_id(self, task_id: int) -> Optional[Task]:
-        query = tasks.select().where(tasks.c.id == task_id)
+        query = tasks.select().where(and_(tasks.c.id == task_id,
+                                          tasks.c.is_archived == False))
         item = await self.database.fetch_one(query)
         if item is None:
             return None
         return Task.parse_obj(item)
 
     async def get_task_by_board(self, board_id: int) -> List[Task]:
-        query = tasks.select().where(tasks.c.board_id == board_id)
+        query = tasks.select().where(and_(tasks.c.board_id == board_id,
+                                          tasks.c.is_archived == False))
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
@@ -76,7 +80,8 @@ class TaskRepository(BaseRepository):
         return fetched_tasks
 
     async def get_task_by_performer_id(self, performer_id) -> List[Task]:
-        query = tasks.select().where(tasks.c.performer_id == performer_id)
+        query = tasks.select().where(and_(tasks.c.performer_id == performer_id,
+                                          tasks.c.is_archived == False))
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
@@ -87,7 +92,8 @@ class TaskRepository(BaseRepository):
         return fetched_tasks
 
     async def get_task_by_creator_id(self, creator_id) -> List[Task]:
-        query = tasks.select().where(tasks.c.creator_id == creator_id)
+        query = tasks.select().where(and_(tasks.c.creator_id == creator_id,
+                                          tasks.c.is_archived == False))
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
