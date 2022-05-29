@@ -6,11 +6,8 @@ from db.base import database
 from endpoints import users, company, boards, tasks, session, admin
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-
 from templates.privacy import privacy_html, terms_and_conditions
 
-templates = Jinja2Templates(directory="templates")
 
 app = FastAPI(title="Task Manager")
 
