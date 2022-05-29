@@ -49,7 +49,7 @@ class BoardRepository(BaseRepository):
             return None
         return Board.parse_obj(item)
 
-    async def get_board_by__id(self, id: int) -> Optional[Board]:
+    async def get_board_by_id(self, id: int) -> Optional[Board]:
         query = boards.select().where(boards.c.id == id)
         item = await self.database.fetch_one(query)
         if item is None:
@@ -63,3 +63,8 @@ class BoardRepository(BaseRepository):
             return True
         except:
             return False
+
+    async def get_board_by_company(self, company_id):
+        query = boards.select()
+        query = 'SELECT boards.id, boards.description, '
+

@@ -77,3 +77,10 @@ async def get_user_session(user_id: int, admin: Admin = Depends(get_admin),
                            session_repo: SessionRepository = Depends(get_session_repository)):
     sessions = await session_repo.get_session_by_user_id(user_id=int(user_id))
     return sessions
+
+
+@router.get('/boards')
+async def get_all_board(admin: Admin = Depends(get_admin), board_repo: BoardRepository = Depends(get_board_repository),
+                        users: UserRepository = Depends(get_user_repository),
+                        user_group_repo: UserGroupRepository = Depends(get_user_group_repository)):
+    await board_repo.get_board_by_company(company_id=1)
