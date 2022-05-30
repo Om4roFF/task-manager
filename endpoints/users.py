@@ -143,7 +143,8 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
     positives_mean = np.mean(positives)
     print('positives mean: {}'.format(positives_mean), flush=True)
     if positives_mean >= .65:
-        return True
+        access_token = await create_access_token({'sub': phone})
+        return Token(access_token=access_token, token_type='Bearer', is_exist=True)
     else:
         raise HTTPException(status_code=400, detail='Incorrect user')
 
