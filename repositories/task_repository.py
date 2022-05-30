@@ -60,47 +60,49 @@ class TaskRepository(BaseRepository):
         await self.database.execute(query, values=values)
 
     async def get_task_by_id(self, task_id: int) -> Optional[Task]:
-        query = tasks.select().where(and_(tasks.c.id == task_id,
-                                          tasks.c.is_archived == False))
+        query = tasks.select().where(and_(tasks.c.id == task_id))
         item = await self.database.fetch_one(query)
         if item is None:
             return None
-        return Task.parse_obj(item)
+        task = Task.parse_obj(item)
+        if task.is_archived:
+            return None
+        return task
 
     async def get_task_by_board(self, board_id: int) -> List[Task]:
-        query = tasks.select().where(and_(tasks.c.board_id == board_id,
-                                          tasks.c.is_archived == False))
+        query = tasks.select().where(tasks.c.board_id == board_id)
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
         fetched_tasks = []
         for i in items:
             task = Task.parse_obj(i)
-            fetched_tasks.append(task)
+            if not task.is_archived:
+                fetched_tasks.append(task)
         return fetched_tasks
 
     async def get_task_by_performer_id(self, performer_id) -> List[Task]:
-        query = tasks.select().where(and_(tasks.c.performer_id == performer_id,
-                                          tasks.c.is_archived == False))
+        query = tasks.select().where(tasks.c.performer_id == performer_id)
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
         fetched_tasks = []
         for i in items:
             task = Task.parse_obj(i)
-            fetched_tasks.append(task)
+            if not task.is_archived:
+                fetched_tasks.append(task)
         return fetched_tasks
 
     async def get_task_by_creator_id(self, creator_id) -> List[Task]:
-        query = tasks.select().where(and_(tasks.c.creator_id == creator_id,
-                                          tasks.c.is_archived == False))
+        query = tasks.select().where(tasks.c.creator_id == creator_id)
         items = await self.database.fetch_all(query)
         if items is None or len(items) == 0:
             return []
         fetched_tasks = []
         for i in items:
             task = Task.parse_obj(i)
-            fetched_tasks.append(task)
+            if not task.is_archived:
+                fetched_tasks.append(task)
         return fetched_tasks
 
     async def delete_task(self, task_id):
