@@ -34,7 +34,9 @@ async def create_admin(admin_in: AdminReg, admin_repo: AdminRepository = Depends
                        company_repo: CompanyRepository = Depends(get_company_repository)):
     if admin_in.password1 != admin_in.password2:
         raise HTTPException(status_code=400, detail='Password doesnt match')
-    company = await company_repo.create(Company(code=admin_in.company_code))
+    company = await company_repo.get_company_by_code(admin_in.company_code)
+    if company is None:
+        company = await company_repo.create(Company(code=admin_in.company_code))
     return await admin_repo.create(admin_in, company.id)
 
 
