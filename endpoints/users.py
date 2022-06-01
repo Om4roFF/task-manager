@@ -50,6 +50,8 @@ async def get_all_users_company(user: User = Depends(get_current_user),
 @router.put('/')
 async def update_user(user: User, user_token: User = Depends(get_current_user),
                       users: UserRepository = Depends(get_user_repository)):
+    if user.company_id is None:
+        raise HTTPException(detail='company id is None', status_code=400)
     updated_user = await users.update(u=user)
     return updated_user
 
