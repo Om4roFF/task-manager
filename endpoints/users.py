@@ -151,7 +151,7 @@ async def login_voice(phone: str, voice: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail='Incorrect user')
 
 
-@router.delete('/voice')
+@router.delete("/voice")
 async def delete_voice(user: User = Depends(get_current_user),):
     dir_ = DATA_DIR + user.phone
     if not os.path.exists(dir_):
